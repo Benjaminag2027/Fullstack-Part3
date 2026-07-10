@@ -1,8 +1,11 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
+
 const app = express()
 
 app.use(express.json())
+app.use(cors())
 
 morgan.token('body', (request, response) => {
   if (request.method === 'POST') {
@@ -57,7 +60,7 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  person = persons.filter(person => person.id !== id)
+  persons = persons.filter(person => person.id !== id)
 
   response.status(204).end()
 })
@@ -106,6 +109,23 @@ app.post('/api/persons', (request, response) => {
 
 })
 
+app.put('/api/persons/:id', (request, response) => {
+    const id = request.params.id
+    const body = request.body
+
+    const person = persons.find(person => person.id === id)
+
+    if (person) {
+        const updatedPerson = {...person, number: body.number}
+
+        persons = persons.map(p => p.id !== id ? p : updatedPerson)
+
+        response.json(updatedPerson)
+    }else {
+        response.status(404).json({ error: 'Person not found' })
+    }
+})
+
 app.get('/info', (request, response) => {
     let date = new Date();
 
@@ -115,7 +135,7 @@ app.get('/info', (request, response) => {
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${days[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()} ${date.toTimeString()}</p>`)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

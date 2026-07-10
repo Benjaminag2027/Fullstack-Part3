@@ -25,11 +25,20 @@ let persons = [
 ]
 
 app.get('/', (request, response) => {
-    response.send('<a href="/api/persons">/api/persons</a>')
+    response.send('<div><a href="/api/persons">/api/persons</a></div><div><a href="/info">/info</a></div>')
 })
 
 app.get('/api/persons', (request, response) => {
     response.json(persons)
+})
+
+app.get('/info', (request, response) => {
+    let date = new Date();
+
+    let days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat']
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+
+    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${days[date.getDay()]} ${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()} ${date.toTimeString()}</p>`)
 })
 
 const PORT = 3001

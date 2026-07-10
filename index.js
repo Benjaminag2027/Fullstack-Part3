@@ -52,10 +52,46 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
+const generateId = () => {
+  const maxId = persons.length > 0
+    ? Math.max(...persons.map(n => Number(n.id)))
+    : 0
+  return String(maxId + 1)
+}
+
 app.post('/api/persons', (request, response) => {
-    const person = request.body
-    person.id = Math.floor(Math.random() * 65536)
+    const body = request.body
+
+    if (!body.name || !body.number) {
+        return response.status(400).json({ 
+        error: 'name or number missing' 
+        })
+    }
+
+    const person = {
+        name: body.name,
+        number: body.number,
+        id: generateId()
+    }
+
     console.log(person)
+
+    let exists = false;
+    persons.map(p => {
+        if (p.name === body.name) {
+            exists = true;
+        }
+    })
+
+    if (!exists) {
+        persons = persons.concat(person)
+    }
+    else {
+        return response.status(409).json({ 
+        error: 'person already exists' 
+        })
+    }
+
     response.json(person)
 
 })
